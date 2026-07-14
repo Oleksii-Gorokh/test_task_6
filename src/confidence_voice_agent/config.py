@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Self
+from typing import Any, Self
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,7 +29,9 @@ class Settings(BaseSettings):
         if not 0 <= self.high_confidence_threshold <= 1:
             raise ValueError("HIGH_CONFIDENCE_THRESHOLD must be between 0 and 1")
         if self.low_confidence_threshold >= self.high_confidence_threshold:
-            raise ValueError("LOW_CONFIDENCE_THRESHOLD must be lower than HIGH_CONFIDENCE_THRESHOLD")
+            raise ValueError(
+                "LOW_CONFIDENCE_THRESHOLD must be lower than HIGH_CONFIDENCE_THRESHOLD"
+            )
         return self
 
     def secret_value(self, value: SecretStr) -> str:
@@ -38,4 +40,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    settings_kwargs: dict[str, Any] = {}
+    return Settings(**settings_kwargs)

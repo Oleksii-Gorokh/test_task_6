@@ -1,10 +1,9 @@
-from livekit.agents import ChatContext
-from livekit.agents import stt
+from livekit.agents import ChatContext, stt
 
 from confidence_voice_agent.agent import ConfidenceAwareAgent
 from confidence_voice_agent.confidence import ConfidenceBand
-from tests.test_config import valid_settings
 from tests.test_confidence import speech_event
+from tests.test_config import valid_settings
 
 
 def test_agent_records_final_stt_confidence() -> None:

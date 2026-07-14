@@ -24,7 +24,9 @@ class ConfidenceContextBuilder:
         if band is ConfidenceBand.UNKNOWN:
             return "Ask the user to repeat because speech recognition confidence is unavailable."
         if band is ConfidenceBand.MEDIUM:
-            return "Answer cautiously and ask a short clarifying question if the intent is ambiguous."
+            return (
+                "Answer cautiously and ask a short clarifying question if the intent is ambiguous."
+            )
         return "Respond normally to the user's request."
 
     def _safe_text(self, text: str) -> str:

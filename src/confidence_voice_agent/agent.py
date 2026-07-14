@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncIterable
 from typing import Any
 
-from livekit.agents import Agent, ChatContext, FunctionTool, ModelSettings, stt
+from livekit.agents import Agent, ChatContext, ModelSettings, llm, stt
 
 from confidence_voice_agent.confidence import (
     ConfidenceExtractor,
@@ -66,11 +66,7 @@ class ConfidenceAwareAgent(Agent):
         audio: AsyncIterable[Any],
         model_settings: ModelSettings,
     ) -> AsyncIterable[stt.SpeechEvent | str]:
-        stream = Agent.default.stt_node(self, audio, model_settings)
-        if hasattr(stream, "__await__"):
-            stream = await stream
-
-        async for event in stream:
+        async for event in Agent.default.stt_node(self, audio, model_settings):
             if isinstance(event, stt.SpeechEvent):
                 self.record_stt_event(event)
             yield event
@@ -78,7 +74,7 @@ class ConfidenceAwareAgent(Agent):
     async def llm_node(
         self,
         chat_ctx: ChatContext,
-        tools: list[FunctionTool],
+        tools: list[llm.Tool],
         model_settings: ModelSettings,
     ) -> Any:
         return Agent.default.llm_node(

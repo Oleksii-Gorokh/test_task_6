@@ -1,6 +1,5 @@
 import pytest
-from livekit.agents import NOT_GIVEN
-from livekit.agents import stt
+from livekit.agents import NOT_GIVEN, stt
 from livekit.agents.types import TimedString
 
 from confidence_voice_agent.confidence import (
