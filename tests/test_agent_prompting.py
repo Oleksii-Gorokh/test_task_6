@@ -31,6 +31,20 @@ def test_agent_ignores_interim_stt_for_llm_context() -> None:
     assert "STT confidence: 0.20" not in str(after.to_dict())
 
 
+def test_agent_clears_previous_confidence_when_new_speech_starts() -> None:
+    agent = ConfidenceAwareAgent(valid_settings())
+    agent.record_stt_event(speech_event(confidence=0.92))
+
+    before = agent.build_llm_chat_context(ChatContext())
+    agent.record_stt_event(
+        speech_event(confidence=0.2, event_type=stt.SpeechEventType.START_OF_SPEECH)
+    )
+    after = agent.build_llm_chat_context(ChatContext())
+
+    assert "STT confidence: 0.92" in str(before.to_dict())
+    assert "STT confidence" not in str(after.to_dict())
+
+
 def test_agent_adds_confidence_metadata_to_llm_context() -> None:
     agent = ConfidenceAwareAgent(valid_settings())
     chat_ctx = ChatContext()

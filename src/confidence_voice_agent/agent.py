@@ -34,6 +34,10 @@ class ConfidenceAwareAgent(Agent):
         )
 
     def record_stt_event(self, event: stt.SpeechEvent) -> TranscriptionTurn | None:
+        if event.type is stt.SpeechEventType.START_OF_SPEECH:
+            self._latest_turn = None
+            return None
+
         turn = self._extractor.extract_turn(event)
         if turn is None:
             return None
