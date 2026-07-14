@@ -24,6 +24,17 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_thresholds(self) -> Self:
+        for name, value in {
+            "LIVEKIT_API_KEY": self.livekit_api_key,
+            "LIVEKIT_API_SECRET": self.livekit_api_secret,
+            "DEEPGRAM_API_KEY": self.deepgram_api_key,
+            "OPENAI_API_KEY": self.openai_api_key,
+            "ELEVENLABS_API_KEY": self.elevenlabs_api_key,
+        }.items():
+            if not value.get_secret_value().strip():
+                raise ValueError(f"{name} must not be empty")
+        if not self.livekit_url.strip():
+            raise ValueError("LIVEKIT_URL must not be empty")
         if not 0 <= self.low_confidence_threshold <= 1:
             raise ValueError("LOW_CONFIDENCE_THRESHOLD must be between 0 and 1")
         if not 0 <= self.high_confidence_threshold <= 1:

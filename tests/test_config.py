@@ -35,6 +35,30 @@ def test_settings_require_provider_keys() -> None:
 
 
 @pytest.mark.parametrize(
+    "field",
+    [
+        "LIVEKIT_API_KEY",
+        "LIVEKIT_API_SECRET",
+        "DEEPGRAM_API_KEY",
+        "OPENAI_API_KEY",
+        "ELEVENLABS_API_KEY",
+    ],
+)
+def test_settings_reject_empty_secret_values(field: str) -> None:
+    with pytest.raises(ValidationError) as error:
+        valid_settings(**{field: " "})
+
+    assert f"{field} must not be empty" in str(error.value)
+
+
+def test_settings_reject_empty_livekit_url() -> None:
+    with pytest.raises(ValidationError) as error:
+        valid_settings(LIVEKIT_URL=" ")
+
+    assert "LIVEKIT_URL must not be empty" in str(error.value)
+
+
+@pytest.mark.parametrize(
     ("field", "value"),
     [
         ("LOW_CONFIDENCE_THRESHOLD", -0.1),
