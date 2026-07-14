@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncIterable
 from typing import Any
 
-from livekit.agents import Agent, ChatContext, ModelSettings, llm, stt
+from livekit.agents import Agent, ChatContext, FlushSentinel, ModelSettings, llm, stt
 
 from confidence_voice_agent.confidence import (
     ConfidenceExtractor,
@@ -75,15 +75,17 @@ class ConfidenceAwareAgent(Agent):
                 self.record_stt_event(event)
             yield event
 
-    async def llm_node(
+    def llm_node(
         self,
         chat_ctx: ChatContext,
         tools: list[llm.Tool],
         model_settings: ModelSettings,
-    ) -> Any:
+    ) -> AsyncIterable[llm.ChatChunk | str | FlushSentinel]:
+        enriched_ctx = self.build_llm_chat_context(chat_ctx)
+        self._latest_turn = None
         return Agent.default.llm_node(
             self,
-            self.build_llm_chat_context(chat_ctx),
+            enriched_ctx,
             tools,
             model_settings,
         )

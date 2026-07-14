@@ -21,9 +21,9 @@ def speech_event(
         request_id="request-1",
         alternatives=[
             stt.SpeechData(
-                language="en",
+                language="en",  # type: ignore[arg-type]
                 text=text,
-                confidence=confidence,
+                confidence=confidence,  # type: ignore[arg-type]
                 words=words,
             )
         ],

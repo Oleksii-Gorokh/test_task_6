@@ -5,7 +5,9 @@ from confidence_voice_agent.config import Settings
 
 
 def valid_settings(**overrides: object) -> Settings:
-    data = {
+    from typing import Any
+
+    data: dict[str, Any] = {
         "LIVEKIT_URL": "wss://example.livekit.cloud",
         "LIVEKIT_API_KEY": "livekit-key",
         "LIVEKIT_API_SECRET": "livekit-secret",

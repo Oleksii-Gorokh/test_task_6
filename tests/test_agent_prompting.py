@@ -1,3 +1,4 @@
+import pytest
 from livekit.agents import ChatContext, stt
 
 from confidence_voice_agent.agent import ConfidenceAwareAgent
@@ -70,3 +71,31 @@ def test_agent_does_not_mutate_original_chat_context() -> None:
     agent.build_llm_chat_context(chat_ctx)
 
     assert len(chat_ctx.items) == 1
+
+
+@pytest.mark.asyncio
+async def test_agent_passes_confidence_context_to_llm_and_clears_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from typing import Any
+
+    from livekit.agents import ModelSettings
+
+    agent = ConfidenceAwareAgent(valid_settings())
+    agent.record_stt_event(speech_event(confidence=0.92))
+    captured: dict[str, ChatContext] = {}
+
+    async def response_stream() -> Any:
+        yield "response"
+
+    def mock_llm_node(_agent: Any, chat_ctx: ChatContext, *_: Any) -> Any:
+        captured["chat_ctx"] = chat_ctx
+        return response_stream()
+
+    monkeypatch.setattr("livekit.agents.Agent.default.llm_node", mock_llm_node)
+
+    assert agent._latest_turn is not None
+    response = agent.llm_node(ChatContext(), [], ModelSettings())
+    assert agent._latest_turn is None
+    assert "STT confidence: 0.92" in str(captured["chat_ctx"].to_dict())
+    assert [chunk async for chunk in response] == ["response"]

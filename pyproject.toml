@@ -45,6 +45,7 @@ strict = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 disallow_any_generics = false
+mypy_path = "src"
 
 [[tool.mypy.overrides]]
 module = ["livekit.*"]
