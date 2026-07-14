@@ -24,6 +24,7 @@ def test_settings_load_valid_minimal_config() -> None:
 
     assert settings.livekit_url == "wss://example.livekit.cloud"
     assert settings.deepgram_model == "nova-3"
+    assert settings.deepgram_language == "en-US"
     assert settings.openai_model == "gpt-4.1-mini"
     assert settings.low_confidence_threshold == 0.6
     assert settings.high_confidence_threshold == 0.8
@@ -53,11 +54,40 @@ def test_settings_reject_empty_secret_values(field: str) -> None:
     assert f"{field} must not be empty" in str(error.value)
 
 
-def test_settings_reject_empty_livekit_url() -> None:
+@pytest.mark.parametrize("url", [" ", "https://example.com", "ws://"])
+def test_settings_reject_invalid_livekit_url(url: str) -> None:
     with pytest.raises(ValidationError) as error:
-        valid_settings(LIVEKIT_URL=" ")
+        valid_settings(LIVEKIT_URL=url)
 
-    assert "LIVEKIT_URL must not be empty" in str(error.value)
+    assert "LIVEKIT_URL must be a valid ws:// or wss:// URL" in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "DEEPGRAM_MODEL",
+        "DEEPGRAM_LANGUAGE",
+        "OPENAI_MODEL",
+        "ELEVENLABS_MODEL",
+        "ELEVENLABS_VOICE_ID",
+    ],
+)
+def test_settings_reject_empty_provider_options(field: str) -> None:
+    with pytest.raises(ValidationError) as error:
+        valid_settings(**{field: " "})
+
+    assert f"{field} must not be empty" in str(error.value)
+
+
+def test_settings_normalizes_valid_log_level() -> None:
+    assert valid_settings(LOG_LEVEL="debug").log_level == "DEBUG"
+
+
+def test_settings_rejects_invalid_log_level() -> None:
+    with pytest.raises(ValidationError) as error:
+        valid_settings(LOG_LEVEL="verbose")
+
+    assert "LOG_LEVEL must be a standard Python logging level" in str(error.value)
 
 
 @pytest.mark.parametrize(

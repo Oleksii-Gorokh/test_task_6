@@ -1,7 +1,7 @@
 import logging
 from collections.abc import AsyncIterable
-from typing import Any
 
+from livekit import rtc
 from livekit.agents import Agent, ChatContext, FlushSentinel, ModelSettings, llm, stt
 
 from confidence_voice_agent.confidence import (
@@ -67,7 +67,7 @@ class ConfidenceAwareAgent(Agent):
 
     async def stt_node(
         self,
-        audio: AsyncIterable[Any],
+        audio: AsyncIterable[rtc.AudioFrame],
         model_settings: ModelSettings,
     ) -> AsyncIterable[stt.SpeechEvent | str]:
         async for event in Agent.default.stt_node(self, audio, model_settings):

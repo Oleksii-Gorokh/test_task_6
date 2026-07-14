@@ -24,6 +24,8 @@ Behavior:
 - Docker, only if you want to run LiveKit locally
 - API keys for Deepgram, OpenAI, and ElevenLabs
 
+`DEEPGRAM_LANGUAGE` is optional and defaults to `en-US`.
+
 ## Setup
 
 Install dependencies:
